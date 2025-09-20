@@ -17,7 +17,7 @@ const useAuthStore = create(
 
         try {
           // Simulate API call
-          await new Promise((resolve) => setTimeout(resolve, 1000));
+          await new Promise((resolve) => setTimeout(resolve, 1500));
 
           let mockUser = null;
 
@@ -26,27 +26,30 @@ const useAuthStore = create(
               id: 1,
               username: "admin",
               role: USER_ROLES.ADMIN,
-              name: "Administrator",
-              email: "admin@lab.ac.id",
+              name: "System Administrator",
+              email: "admin@iisc.ac.in",
+              avatar: null,
             };
           } else if (username === "asisten" && password === "password123") {
             mockUser = {
               id: 2,
               username: "asisten",
               role: USER_ROLES.ASSISTANT,
-              name: "Asisten Lab",
-              email: "asisten@lab.ac.id",
+              name: "Dr. Lab Assistant",
+              email: "assistant@iisc.ac.in",
               phone_number: "081234567890",
+              avatar: null,
             };
           } else if (username === "mahasiswa" && password === "password123") {
             mockUser = {
               id: 3,
               username: "mahasiswa",
               role: USER_ROLES.STUDENT,
-              name: "Mahasiswa",
-              email: "mahasiswa@lab.ac.id",
+              name: "Alex Johnson",
+              email: "alex.johnson@iisc.ac.in",
               NIM: "2024001001",
-              class: "SI-A",
+              class: "CS-A",
+              avatar: null,
             };
           }
 
@@ -61,7 +64,7 @@ const useAuthStore = create(
           });
         } catch (error) {
           set({
-            error: "Username atau password salah.",
+            error: error.message || "Login failed",
             isLoading: false,
           });
         }
@@ -77,13 +80,22 @@ const useAuthStore = create(
 
       clearError: () => set({ error: null }),
 
+      updateUser: (updates) => {
+        const currentUser = get().user;
+        if (currentUser) {
+          set({
+            user: { ...currentUser, ...updates }
+          });
+        }
+      },
+
       // Helper methods
       isAdmin: () => get().user?.role === USER_ROLES.ADMIN,
       isAssistant: () => get().user?.role === USER_ROLES.ASSISTANT,
       isStudent: () => get().user?.role === USER_ROLES.STUDENT,
     }),
     {
-      name: "lab-auth-storage",
+      name: "iisc-auth-storage",
       partialize: (state) => ({
         user: state.user,
         isAuthenticated: state.isAuthenticated,
