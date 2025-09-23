@@ -147,15 +147,15 @@ const Login = () => {
                 {/* Statistics */}
                 <div className="grid grid-cols-3 gap-4">
                   <div className="text-center p-4 backdrop-blur-md bg-white/10 rounded-xl border border-white/20 hover:scale-105 transition-transform duration-300">
-                    <div className="text-2xl font-bold bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent">500+</div>
+                    <div className="text-2xl font-bold bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent">300+</div>
                     <div className="text-xs text-gray-300 font-medium">Mahasiswa</div>
                   </div>
                   <div className="text-center p-4 backdrop-blur-md bg-white/10 rounded-xl border border-white/20 hover:scale-105 transition-transform duration-300">
-                    <div className="text-2xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">25+</div>
-                    <div className="text-xs text-gray-300 font-medium">Dosen</div>
+                    <div className="text-2xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">10</div>
+                    <div className="text-xs text-gray-300 font-medium">Asisten</div>
                   </div>
                   <div className="text-center p-4 backdrop-blur-md bg-white/10 rounded-xl border border-white/20 hover:scale-105 transition-transform duration-300">
-                    <div className="text-2xl font-bold bg-gradient-to-r from-orange-300 to-red-300 bg-clip-text text-transparent">15+</div>
+                    <div className="text-2xl font-bold bg-gradient-to-r from-orange-300 to-red-300 bg-clip-text text-transparent">4</div>
                     <div className="text-xs text-gray-300 font-medium">Lab</div>
                   </div>
                 </div>
@@ -202,7 +202,6 @@ const Login = () => {
                 <div className="bg-gradient-to-r from-white/10 to-white/5 p-4 sm:p-6 lg:p-8 border-b border-white/10">
                   <div className="text-center">
                     <div className="flex items-center justify-center gap-2 mb-3">
-                      <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-blue-300" />
                       <h2 className="text-xl sm:text-2xl font-bold text-white">Selamat Datang</h2>
                     </div>
                     <p className="text-gray-300 text-xs sm:text-sm">
@@ -305,7 +304,7 @@ const Login = () => {
                     {/* Remember Me */}
                     <div className="form-control">
                       <label className="cursor-pointer label justify-start gap-2 sm:gap-3">
-                        <input type="checkbox" className="checkbox checkbox-primary checkbox-sm" />
+                        <input type="checkbox" className="checkbox border-white checkbox-sm checked:checkbox-primary" />
                         <span className="label-text text-gray-300 text-xs sm:text-sm">Ingat saya selama 30 hari</span>
                       </label>
                     </div>
