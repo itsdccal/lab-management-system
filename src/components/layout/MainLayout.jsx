@@ -1,24 +1,20 @@
 // src/components/layout/MainLayout.jsx
 import React, { useState, useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { 
   Menu, X, FlaskConical, Home, Users, BookOpen, GraduationCap, Building, 
   BarChart3, Calendar, FileText, Clock, Award, Settings, LogOut, Sun, Moon, 
   Bell, Search, ChevronDown, User, Zap, ChevronLeft
 } from 'lucide-react';
+import useAuthStore from '../../stores/authStore';
+import { USER_ROLES } from '../../utils/constants';
 
 const MainLayout = () => {
+  const navigate = useNavigate();
+  const { user, logout } = useAuthStore();
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [theme, setTheme] = useState('dark');
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isMobile, setIsMobile] = useState(false);
-  
-  // Sample user data - would come from auth store
-  const user = {
-    name: 'Andi Muh haikal',
-    role: 'Student',
-    NIM: 'H071221089'
-  };
 
   // Update time every second
   useEffect(() => {
@@ -45,13 +41,9 @@ const MainLayout = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const toggleTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
-  };
-
   const handleLogout = () => {
-    // Logout logic
-    console.log('Logout');
+    // Use the logout from auth store - this will handle cleanup and redirect
+    logout();
   };
 
   const formatDate = (date) => {
@@ -77,10 +69,10 @@ const MainLayout = () => {
     Calendar, FileText, Clock, Award, Settings
   };
 
-  // Navigation based on role
+  // Navigation based on role - use USER_ROLES from constants
   const getNavigation = (role) => {
     const navMap = {
-      'admin': [
+      [USER_ROLES.ADMIN]: [
         { name: 'Dashboard', href: '/dashboard', icon: 'Home', color: 'text-blue-400' },
         { name: 'Kelola Users', href: '/users', icon: 'Users', color: 'text-green-400' },
         { name: 'Mata Kuliah', href: '/subjects', icon: 'BookOpen', color: 'text-purple-400' },
@@ -88,7 +80,7 @@ const MainLayout = () => {
         { name: 'Ruangan Lab', href: '/rooms', icon: 'Building', color: 'text-pink-400' },
         { name: 'Laporan', href: '/reports', icon: 'BarChart3', color: 'text-indigo-400' },
       ],
-      'assistant': [
+      [USER_ROLES.ASSISTANT]: [
         { name: 'Dashboard', href: '/dashboard', icon: 'Home', color: 'text-blue-400' },
         { name: 'Sesi Praktikum', href: '/sessions', icon: 'Calendar', color: 'text-green-400' },
         { name: 'Kelompok Siswa', href: '/groups', icon: 'Users', color: 'text-purple-400' },
@@ -97,15 +89,16 @@ const MainLayout = () => {
         { name: 'Presensi', href: '/attendance', icon: 'Clock', color: 'text-indigo-400' },
         { name: 'Penilaian', href: '/grades', icon: 'Award', color: 'text-yellow-400' },
       ],
-      'student': [
+      [USER_ROLES.STUDENT]: [
         { name: 'Dashboard', href: '/dashboard', icon: 'Home', color: 'text-blue-400', current: true },
-        { name: 'Schedule', href: '/schedule', icon: 'Calendar', color: 'text-green-400' },
-        { name: 'Assignments', href: '/assignments', icon: 'FileText', color: 'text-purple-400' },
-        { name: 'Courses', href: '/courses', icon: 'BookOpen', color: 'text-orange-400' },
-        { name: 'Grades', href: '/grades', icon: 'Award', color: 'text-pink-400' },
+        { name: 'Jadwal Praktikum', href: '/schedule', icon: 'Calendar', color: 'text-green-400' },
+        { name: 'Modul & Materi', href: '/modules', icon: 'BookOpen', color: 'text-purple-400' },
+        { name: 'Tugas Praktikum', href: '/assignments', icon: 'FileText', color: 'text-orange-400' },
+        { name: 'Presensi Saya', href: '/attendance', icon: 'Clock', color: 'text-pink-400' },
+        { name: 'Nilai Saya', href: '/grades', icon: 'Award', color: 'text-indigo-400' },
       ]
     };
-    return navMap[role.toLowerCase()] || navMap['student'];
+    return navMap[role] || navMap[USER_ROLES.STUDENT];
   };
 
   const navigationItems = getNavigation(user.role);
@@ -138,11 +131,7 @@ const MainLayout = () => {
             {/* Sidebar Header */}
             <div className="flex items-center gap-3 p-6 border-b border-white/10 flex-shrink-0">
               <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
-                <img 
-                      src="/lab-logo.png"
-                      alt="Lab SI UNHAS Logo" 
-                      className="w-full h-full object-contain drop-shadow-lg"
-                    />
+                <FlaskConical className="w-6 h-6 text-white" />
               </div>
               <div className="flex-1">
                 <h1 className="text-lg font-bold text-white">Lab Portal</h1>
@@ -193,16 +182,23 @@ const MainLayout = () => {
 
             {/* User Profile & Controls */}
             <div className="p-4 border-t border-white/10 flex-shrink-0 space-y-4">
-              {/* User Profile */}
-              <div className="flex items-center gap-3 p-3 bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl">
+              {/* User Profile - Direct Click */}
+              <button 
+                onClick={() => navigate('/profile')}
+                className="w-full flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-xl transition-all duration-300 text-left"
+              >
                 <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
-                  {getUserInitials(user.name)}
+                  {getUserInitials(user?.name)}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-white truncate text-sm">{user.name}</p>
-                  <p className="text-xs text-gray-400 capitalize">{user.role}</p>
+                  <p className="font-semibold text-white truncate text-sm">{user?.name}</p>
+                  <p className="text-xs text-gray-400 capitalize">{user?.role}</p>
+                  {user?.NIM && (
+                    <p className="text-xs text-gray-500">NIM: {user.NIM}</p>
+                  )}
                 </div>
-              </div>
+                <User className="w-4 h-4 text-gray-400" />
+              </button>
               
               {/* Simple Full Width Logout Button */}
               <div className="w-full">
