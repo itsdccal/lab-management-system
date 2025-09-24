@@ -1,4 +1,4 @@
-/* SUPER MINIMAL CSS - ZERO CONFLICTS - src/index.css */
+/* src/index.css - MINIMAL CSS - ZERO CONFLICTS */
 
 @tailwind base;
 @tailwind components;
@@ -28,6 +28,25 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #2563eb;
+}
+
+/* Custom scrollbar for sidebar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.5);
+  border-radius: 2px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.7);
 }
 
 /* SEMUA STYLING LAINNYA MENGGUNAKAN TAILWIND + DAISYUI LANGSUNG DI JSX */

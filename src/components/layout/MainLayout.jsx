@@ -3,11 +3,14 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { 
   Menu, X, FlaskConical, Home, Users, BookOpen, GraduationCap, Building, 
-  BarChart3, Calendar, FileText, Clock, Award, Settings, LogOut, Sun, Moon, 
-  Bell, Search, ChevronDown, User, Zap, ChevronLeft
+  BarChart3, Calendar, FileText, Clock, Award, Settings, LogOut, 
+  Bell, Search, ChevronDown, User, Zap, ChevronLeft, Brain, CheckSquare,
+  UserCheck, Upload, Download, PlusCircle, ListChecks, Target,
+  Monitor, Presentation, ClipboardList, TrendingUp, MessageSquare,
+  ChevronRight
 } from 'lucide-react';
 import useAuthStore from '../../stores/authStore';
-import { USER_ROLES } from '../../utils/constants';
+import { NAVIGATION_CONFIG } from '../../config/navigation';
 
 const MainLayout = () => {
   const navigate = useNavigate();
@@ -42,7 +45,6 @@ const MainLayout = () => {
   }, []);
 
   const handleLogout = () => {
-    // Use the logout from auth store - this will handle cleanup and redirect
     logout();
   };
 
@@ -66,51 +68,26 @@ const MainLayout = () => {
   // Icon mapping
   const iconMap = {
     Home, Users, BookOpen, GraduationCap, Building, BarChart3,
-    Calendar, FileText, Clock, Award, Settings
+    Calendar, FileText, Clock, Award, Settings, Brain, CheckSquare,
+    UserCheck, Upload, Download, PlusCircle, ListChecks, Target,
+    FlaskConical, Monitor, Presentation, ClipboardList, TrendingUp, MessageSquare
   };
 
-  // Navigation based on role - use USER_ROLES from constants
-  const getNavigation = (role) => {
-    const navMap = {
-      [USER_ROLES.ADMIN]: [
-        { name: 'Dashboard', href: '/dashboard', icon: 'Home', color: 'text-blue-400' },
-        { name: 'Kelola Users', href: '/users', icon: 'Users', color: 'text-green-400' },
-        { name: 'Mata Kuliah', href: '/subjects', icon: 'BookOpen', color: 'text-purple-400' },
-        { name: 'Kelas', href: '/classes', icon: 'GraduationCap', color: 'text-orange-400' },
-        { name: 'Ruangan Lab', href: '/rooms', icon: 'Building', color: 'text-pink-400' },
-        { name: 'Laporan', href: '/reports', icon: 'BarChart3', color: 'text-indigo-400' },
-      ],
-      [USER_ROLES.ASSISTANT]: [
-        { name: 'Dashboard', href: '/dashboard', icon: 'Home', color: 'text-blue-400' },
-        { name: 'Sesi Praktikum', href: '/sessions', icon: 'Calendar', color: 'text-green-400' },
-        { name: 'Kelompok Siswa', href: '/groups', icon: 'Users', color: 'text-purple-400' },
-        { name: 'Modul & Indikator', href: '/modules', icon: 'BookOpen', color: 'text-orange-400' },
-        { name: 'Tugas & Assessment', href: '/assessments', icon: 'FileText', color: 'text-pink-400' },
-        { name: 'Presensi', href: '/attendance', icon: 'Clock', color: 'text-indigo-400' },
-        { name: 'Penilaian', href: '/grades', icon: 'Award', color: 'text-yellow-400' },
-      ],
-      [USER_ROLES.STUDENT]: [
-        { name: 'Dashboard', href: '/dashboard', icon: 'Home', color: 'text-blue-400', current: true },
-        { name: 'Jadwal Praktikum', href: '/schedule', icon: 'Calendar', color: 'text-green-400' },
-        { name: 'Modul & Materi', href: '/modules', icon: 'BookOpen', color: 'text-purple-400' },
-        { name: 'Tugas Praktikum', href: '/assignments', icon: 'FileText', color: 'text-orange-400' },
-        { name: 'Presensi Saya', href: '/attendance', icon: 'Clock', color: 'text-pink-400' },
-        { name: 'Nilai Saya', href: '/grades', icon: 'Award', color: 'text-indigo-400' },
-      ]
-    };
-    return navMap[role] || navMap[USER_ROLES.STUDENT];
-  };
-
-  const navigationItems = getNavigation(user.role);
+  // Get navigation for current user role
+  const navigationSections = NAVIGATION_CONFIG[user.role] || NAVIGATION_CONFIG.student;
 
   const getUserInitials = (name) => {
     if (!name) return 'U';
     return name.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2);
   };
 
+  const isCurrentPath = (href) => {
+    return window.location.pathname === href;
+  };
+
   // Get current page name
   const getCurrentPageName = () => {
-    const currentItem = navigationItems.find(item => item.current);
+    const currentItem = navigationSections.find(item => isCurrentPath(item.href));
     return currentItem ? currentItem.name : 'Dashboard';
   };
 
@@ -124,18 +101,18 @@ const MainLayout = () => {
       </div>
 
       <div className="relative z-10 flex h-screen">
-        {/* Sidebar - Fixed & Full Height */}
+        {/* Sidebar */}
         {sidebarOpen && (
           <div className={`${isMobile ? 'fixed inset-y-0 left-0 z-50' : 'relative'} w-72 flex flex-col bg-black/20 backdrop-blur-xl border-r border-white/10`}>
             
             {/* Sidebar Header */}
             <div className="flex items-center gap-3 p-6 border-b border-white/10 flex-shrink-0">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
-                <FlaskConical className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
+                <FlaskConical className="w-7 h-7 text-white" />
               </div>
               <div className="flex-1">
-                <h1 className="text-lg font-bold text-white">Lab Portal</h1>
-                <p className="text-xs text-gray-400">Sistem Informasi</p>
+                <h1 className="text-xl font-bold text-white">Lab Portal SI</h1>
+                <p className="text-xs text-gray-400">Sistem Manajemen Lab</p>
               </div>
               {isMobile && (
                 <button
@@ -147,29 +124,45 @@ const MainLayout = () => {
               )}
             </div>
 
-            {/* Navigation Menu */}
+            {/* Simplified Navigation Menu */}
             <div className="flex-1 p-4 overflow-y-auto">
               <nav className="space-y-2">
-                {navigationItems.map((item) => {
+                {navigationSections.map((item) => {
                   const IconComponent = iconMap[item.icon];
+                  const isActive = isCurrentPath(item.href);
+                  
                   return (
                     <a
                       key={item.name}
                       href={item.href}
                       className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
-                        item.current
+                        isActive
                           ? 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-white border border-blue-500/30 shadow-lg'
                           : 'text-gray-300 hover:bg-white/5 hover:text-white hover:border-white/10 border border-transparent'
                       }`}
                       onClick={() => isMobile && setSidebarOpen(false)}
                     >
                       <div className={`p-2 rounded-lg transition-all duration-200 ${
-                        item.current ? 'bg-white/10' : 'bg-transparent group-hover:bg-white/5'
+                        isActive ? 'bg-white/10' : 'bg-transparent group-hover:bg-white/5'
                       }`}>
-                        <IconComponent className={`w-5 h-5 ${item.current ? 'text-white' : item.color}`} />
+                        <IconComponent className={`w-5 h-5 ${isActive ? 'text-white' : item.color}`} />
                       </div>
-                      <span className="font-medium text-sm">{item.name}</span>
-                      {item.current && (
+                      
+                      <div className="flex-1">
+                        <span className="font-medium text-sm">{item.name}</span>
+                      </div>
+                      
+                      {item.badge && (
+                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                          item.badge === 'AI' 
+                            ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-300 border border-cyan-500/30'
+                            : 'bg-green-500/20 text-green-300 border border-green-500/30'
+                        }`}>
+                          {item.badge}
+                        </span>
+                      )}
+                      
+                      {isActive && (
                         <div className="ml-auto">
                           <Zap className="w-4 h-4 text-blue-300 animate-pulse" />
                         </div>
@@ -181,11 +174,11 @@ const MainLayout = () => {
             </div>
 
             {/* User Profile & Controls */}
-            <div className="p-4 border-t border-white/10 flex-shrink-0 space-y-4">
-              {/* User Profile - Direct Click */}
+            <div className="p-4 border-t border-white/10 flex-shrink-0 space-y-3">
+              {/* User Profile Card */}
               <button 
                 onClick={() => navigate('/profile')}
-                className="w-full flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-xl transition-all duration-300 text-left"
+                className="w-full flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-xl transition-all duration-300 text-left group"
               >
                 <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
                   {getUserInitials(user?.name)}
@@ -200,17 +193,15 @@ const MainLayout = () => {
                 <User className="w-4 h-4 text-gray-400" />
               </button>
               
-              {/* Simple Full Width Logout Button */}
-              <div className="w-full">
-                <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-4 py-3 bg-white/5 hover:bg-red-500/20 border border-white/10 hover:border-red-500/30 rounded-xl transition-all duration-300 text-gray-300 hover:text-red-300"
-                  title="Logout"
-                >
-                  <LogOut className="w-5 h-5" />
-                  <span className="text-sm font-medium">Logout</span>
-                </button>
-              </div>
+              {/* Logout Button */}
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-3 px-4 py-3 bg-white/5 hover:bg-red-500/20 border border-white/10 hover:border-red-500/30 rounded-xl transition-all duration-300 text-gray-300 hover:text-red-300"
+                title="Logout"
+              >
+                <LogOut className="w-5 h-5" />
+                <span className="text-sm font-medium">Logout</span>
+              </button>
             </div>
           </div>
         )}
