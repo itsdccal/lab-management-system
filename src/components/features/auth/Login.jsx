@@ -180,10 +180,6 @@ const Login = () => {
                       src="/lab-logo.png"
                       alt="Lab SI UNHAS Logo" 
                       className="w-full h-full object-contain drop-shadow-lg"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'block';
-                      }}
                     />
                     <div className="hidden w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
                       <span className="text-white font-bold text-lg">SI</span>
