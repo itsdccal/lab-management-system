@@ -68,9 +68,10 @@ const MainLayout = () => {
   // Icon mapping
   const iconMap = {
     Home, Users, BookOpen, GraduationCap, Building, BarChart3,
-    Calendar, FileText, Clock, Award, Settings, Brain, CheckSquare,
-    UserCheck, Upload, Download, PlusCircle, ListChecks, Target,
-    FlaskConical, Monitor, Presentation, ClipboardList, TrendingUp, MessageSquare
+    Calendar, FileText, Clock, Award, Settings, Brain, Zap,
+    CheckSquare, UserCheck, Upload, Download, PlusCircle,
+    ListChecks, Target, FlaskConical, Monitor, Presentation,
+    ClipboardList, TrendingUp, MessageSquare
   };
 
   // Get navigation for current user role
@@ -150,6 +151,9 @@ const MainLayout = () => {
                       
                       <div className="flex-1">
                         <span className="font-medium text-sm">{item.name}</span>
+                        {item.description && (
+                          <p className="text-xs text-gray-400 mt-0.5 truncate">{item.description}</p>
+                        )}
                       </div>
                       
                       {item.badge && (
