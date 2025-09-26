@@ -1,15 +1,20 @@
-// src/router.jsx
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
+import useAuthStore from './stores/authStore';
+import { USER_ROLES } from './utils/constants';
 
-// Layout imports
+// Layout imports (tidak lazy load untuk core layout)
 import MainLayout from './components/layout/MainLayout.jsx';
 import AuthLayout from './components/layout/AuthLayout.jsx';
 import ProtectedRoute from './components/common/ProtectedRoute.jsx';
 import LoadingSpinner from './components/layout/LoadingSpinner.jsx';
 import NotFound from './components/common/NotFound.jsx';
 
-// Auth page
+// =======================================================
+// LAZY LOADED COMPONENTS
+// =======================================================
+
+// Auth pages
 const Login = lazy(() => import('./components/features/auth/Login.jsx'));
 
 // Dashboard pages - role-based
@@ -19,14 +24,12 @@ const AdminDashboard = lazy(() => import('./components/features/dashboard/AdminD
 
 // Student pages
 const MyClassPage = lazy(() => import('./components/features/student/MyClassPage.jsx'));
-const StudentMaterialsPage = lazy(() => import('./components/features/student/StudentMaterialsPage.jsx'));
 const StudentAssignmentsPage = lazy(() => import('./components/features/student/StudentAssignmentsPage.jsx'));
 const StudentGradesPage = lazy(() => import('./components/features/student/StudentGradesPage.jsx'));
 
 // Assistant pages
 const SessionsPage = lazy(() => import('./components/features/assistant/SessionsPage.jsx'));
 const GroupsPage = lazy(() => import('./components/features/assistant/GroupsPage.jsx'));
-const AssistantMaterialsPage = lazy(() => import('./components/features/assistant/AssistantMaterialsPage.jsx'));
 const AssistantGradingPage = lazy(() => import('./components/features/assistant/AssistantGradingPage.jsx'));
 
 // Admin pages
@@ -36,13 +39,49 @@ const ClassManagementPage = lazy(() => import('./components/features/admin/Class
 const ReportsPage = lazy(() => import('./components/features/admin/ReportsPage.jsx'));
 const SystemConfigPage = lazy(() => import('./components/features/admin/SystemConfigPage.jsx'));
 
-// Shared components
-const ProfilePage = lazy(() => import('./components/features/shared/ProfilePage.jsx'));
+// Materials page (sudah ada)
+const MaterialsPage = lazy(() => import('./components/features/materials/MaterialsPage.jsx'));
 
-// Dashboard Route Component with Role Detection
-const DashboardRoute = lazy(() => import('./components/features/dashboard/DashboardRoute.jsx'));
+// Profile page (NEW LOCATION - dari folder profile, bukan shared)
+const ProfilePage = lazy(() => import('./components/features/profile/ProfilePage.jsx'));
+
+
+// =======================================================
+// SMART ROUTE COMPONENTS
+// =======================================================
+
+// Dashboard Route Component - Role-based dashboard routing
+const DashboardRoute = () => {
+  const { user } = useAuthStore();
+  
+  // Suspense wrapper untuk lazy loading
+  const DashboardComponent = lazy(() => {
+    switch (user?.role) {
+      case USER_ROLES.ADMIN:
+        return import('./components/features/dashboard/AdminDashboard.jsx');
+      case USER_ROLES.ASSISTANT:
+        return import('./components/features/dashboard/AssistantDashboard.jsx');
+      case USER_ROLES.STUDENT:
+      default:
+        return import('./components/features/dashboard/StudentDashboard.jsx');
+    }
+  });
+
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <DashboardComponent />
+    </Suspense>
+  );
+};
+
+// =======================================================
+// ROUTER CONFIGURATION - UPDATED
+// =======================================================
 
 export const router = createBrowserRouter([
+  // =======================================================
+  // AUTH ROUTES
+  // =======================================================
   {
     path: '/auth',
     element: <AuthLayout />,
@@ -61,6 +100,10 @@ export const router = createBrowserRouter([
       },
     ],
   },
+
+  // =======================================================
+  // MAIN APPLICATION ROUTES
+  // =======================================================
   {
     path: '/',
     element: (
@@ -69,24 +112,23 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
+      // Root redirect
       {
         path: '',
         element: <Navigate to="/dashboard" replace />,
       },
       
-      // Dashboard - Role-based routing
+      // =======================================================
+      // DASHBOARD - Role-based routing
+      // =======================================================
       {
         path: 'dashboard',
-        element: (
-          <Suspense fallback={<LoadingSpinner />}>
-            <DashboardRoute />
-          </Suspense>
-        ),
+        element: <DashboardRoute />,
       },
 
-      // ==========================================
+      // =======================================================
       // STUDENT ROUTES
-      // ==========================================
+      // =======================================================
       {
         path: 'my-class',
         element: (
@@ -112,9 +154,9 @@ export const router = createBrowserRouter([
         ),
       },
 
-      // ==========================================
+      // =======================================================
       // ASSISTANT ROUTES
-      // ==========================================
+      // =======================================================
       {
         path: 'sessions',
         element: (
@@ -140,9 +182,9 @@ export const router = createBrowserRouter([
         ),
       },
 
-      // ==========================================
+      // =======================================================
       // ADMIN ROUTES
-      // ==========================================
+      // =======================================================
       {
         path: 'users',
         element: (
@@ -184,21 +226,17 @@ export const router = createBrowserRouter([
         ),
       },
 
-      // ==========================================
-      // SHARED ROUTES (Student & Assistant)
-      // ==========================================
+      // =======================================================
+      // SHARED ROUTES
+      // =======================================================
       {
         path: 'materials',
         element: (
           <Suspense fallback={<LoadingSpinner />}>
-            <MaterialsRoute />
+            <MaterialsPage />
           </Suspense>
         ),
       },
-
-      // ==========================================
-      // PROFILE & SETTINGS
-      // ==========================================
       {
         path: 'profile',
         element: (
@@ -209,20 +247,60 @@ export const router = createBrowserRouter([
       },
     ],
   },
+
+  // =======================================================
+  // 404 HANDLER
+  // =======================================================
   {
     path: '*',
     element: <NotFound />,
   },
 ]);
 
-// Materials Route Component - Role-based materials page
-const MaterialsRoute = () => {
-  const { user } = useAuthStore();
-  const { USER_ROLES } = require('./utils/constants');
-  
-  if (user.role === USER_ROLES.ASSISTANT) {
-    return <AssistantMaterialsPage />;
-  } else {
-    return <StudentMaterialsPage />;
-  }
+// =======================================================
+// ROUTE UTILITIES (UNCHANGED)
+// =======================================================
+
+export const getAccessibleRoutes = (userRole) => {
+  const allRoutes = {
+    [USER_ROLES.STUDENT]: [
+      '/dashboard',
+      '/my-class', 
+      '/assignments',
+      '/grades',
+      '/materials',
+      '/profile'
+    ],
+    [USER_ROLES.ASSISTANT]: [
+      '/dashboard',
+      '/sessions',
+      '/groups', 
+      '/grading',
+      '/materials',
+      '/profile'
+    ],
+    [USER_ROLES.ADMIN]: [
+      '/dashboard',
+      '/users',
+      '/subjects',
+      '/class-management', 
+      '/reports',
+      '/system-config',
+      '/materials',
+      '/profile'
+    ]
+  };
+
+  return allRoutes[userRole] || allRoutes[USER_ROLES.STUDENT];
 };
+
+export const canAccessRoute = (path, userRole) => {
+  const accessibleRoutes = getAccessibleRoutes(userRole);
+  return accessibleRoutes.includes(path);
+};
+
+export const getDefaultRouteForRole = (userRole) => {
+  return '/dashboard';
+};
+
+export default router;

@@ -1,6 +1,5 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import { USER_ROLES } from "../utils/constants";
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 const useAuthStore = create(
   persist(
@@ -12,94 +11,75 @@ const useAuthStore = create(
       error: null,
 
       // Actions
-      login: async (username, password) => {
+      setUser: (user) => {
+        set({ 
+          user, 
+          isAuthenticated: !!user,
+          error: null 
+        });
+      },
+
+      login: async (credentials) => {
         set({ isLoading: true, error: null });
-
+        
         try {
-          // Simulate API call
-          await new Promise((resolve) => setTimeout(resolve, 1500));
+          // Simulate API call - replace with actual API
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          // Mock user data based on credentials
+          const mockUser = {
+            id: 1,
+            name: credentials.username || 'Test User',
+            email: credentials.email || 'test@example.com',
+            role: credentials.role || 'student',
+            nim: credentials.username === 'student' ? '2021001234' : undefined
+          };
 
-          let mockUser = null;
-
-          if (username === "admin" && password === "admin123") {
-            mockUser = {
-              id: 1,
-              username: "admin",
-              role: USER_ROLES.ADMIN,
-              name: "System Administrator",
-              email: "admin@iisc.ac.in",
-              avatar: null,
-            };
-          } else if (username === "asisten" && password === "password123") {
-            mockUser = {
-              id: 2,
-              username: "asisten",
-              role: USER_ROLES.ASSISTANT,
-              name: "Dr. Lab Assistant",
-              email: "assistant@iisc.ac.in",
-              phone_number: "081234567890",
-              avatar: null,
-            };
-          } else if (username === "mahasiswa" && password === "password123") {
-            mockUser = {
-              id: 3,
-              username: "mahasiswa",
-              role: USER_ROLES.STUDENT,
-              name: "Alex Johnson",
-              email: "alex.johnson@iisc.ac.in",
-              NIM: "2024001001",
-              class: "CS-A",
-              avatar: null,
-            };
-          }
-
-          if (!mockUser) {
-            throw new Error("Invalid credentials");
-          }
-
-          set({
+          set({ 
             user: mockUser,
             isAuthenticated: true,
             isLoading: false,
+            error: null
           });
+
+          return { success: true, user: mockUser };
         } catch (error) {
-          set({
-            error: error.message || "Login failed",
-            isLoading: false,
+          set({ 
+            isLoading: false, 
+            error: error.message || 'Login failed'
           });
+          return { success: false, error: error.message };
         }
       },
 
       logout: () => {
-        set({
+        set({ 
           user: null,
           isAuthenticated: false,
-          error: null,
+          isLoading: false,
+          error: null
         });
       },
 
-      clearError: () => set({ error: null }),
-
-      updateUser: (updates) => {
-        const currentUser = get().user;
-        if (currentUser) {
-          set({
-            user: { ...currentUser, ...updates }
+      updateUser: (userData) => {
+        const { user } = get();
+        if (user) {
+          set({ 
+            user: { ...user, ...userData }
           });
         }
       },
 
-      // Helper methods
-      isAdmin: () => get().user?.role === USER_ROLES.ADMIN,
-      isAssistant: () => get().user?.role === USER_ROLES.ASSISTANT,
-      isStudent: () => get().user?.role === USER_ROLES.STUDENT,
+      clearError: () => {
+        set({ error: null });
+      }
     }),
     {
-      name: "iisc-auth-storage",
+      name: 'auth-storage',
       partialize: (state) => ({
         user: state.user,
-        isAuthenticated: state.isAuthenticated,
-      }),
+        isAuthenticated: state.isAuthenticated
+      })
     }
   )
 );
