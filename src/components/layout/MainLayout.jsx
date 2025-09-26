@@ -109,7 +109,11 @@ const MainLayout = () => {
             {/* Sidebar Header */}
             <div className="flex items-center gap-3 p-6 border-b border-white/10 flex-shrink-0">
               <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
-                <FlaskConical className="w-7 h-7 text-white" />
+                    <img 
+                      src="/lab-logo.png"
+                      alt="Lab SI UNHAS Logo" 
+                      className="w-full h-full object-contain drop-shadow-lg"
+                    />
               </div>
               <div className="flex-1">
                 <h1 className="text-xl font-bold text-white">Lab Portal SI</h1>
@@ -164,12 +168,6 @@ const MainLayout = () => {
                         }`}>
                           {item.badge}
                         </span>
-                      )}
-                      
-                      {isActive && (
-                        <div className="ml-auto">
-                          <Zap className="w-4 h-4 text-blue-300 animate-pulse" />
-                        </div>
                       )}
                     </a>
                   );
