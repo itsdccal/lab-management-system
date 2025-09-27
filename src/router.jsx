@@ -1,6 +1,5 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
-import useAuthStore from './stores/authStore';
 import { USER_ROLES } from './utils/constants';
 
 // Layout imports (tidak lazy load untuk core layout)
@@ -17,10 +16,8 @@ import NotFound from './components/common/NotFound.jsx';
 // Auth pages
 const Login = lazy(() => import('./components/features/auth/Login.jsx'));
 
-// Dashboard pages - role-based
-const StudentDashboard = lazy(() => import('./components/features/dashboard/StudentDashboard.jsx'));
-const AssistantDashboard = lazy(() => import('./components/features/dashboard/AssistantDashboard.jsx'));
-const AdminDashboard = lazy(() => import('./components/features/dashboard/AdminDashboard.jsx'));
+// Dashboard Route - Smart role-based routing
+const DashboardRoute = lazy(() => import('./components/features/dashboard/DashboardRoute.jsx'));
 
 // Student pages
 const MyClassPage = lazy(() => import('./components/features/student/MyClassPage.jsx'));
@@ -39,43 +36,12 @@ const ClassManagementPage = lazy(() => import('./components/features/admin/Class
 const ReportsPage = lazy(() => import('./components/features/admin/ReportsPage.jsx'));
 const SystemConfigPage = lazy(() => import('./components/features/admin/SystemConfigPage.jsx'));
 
-// Materials page (sudah ada)
+// Shared pages
 const MaterialsPage = lazy(() => import('./components/features/materials/MaterialsPage.jsx'));
-
-// Profile page (NEW LOCATION - dari folder profile, bukan shared)
 const ProfilePage = lazy(() => import('./components/features/profile/ProfilePage.jsx'));
 
-
 // =======================================================
-// SMART ROUTE COMPONENTS
-// =======================================================
-
-// Dashboard Route Component - Role-based dashboard routing
-const DashboardRoute = () => {
-  const { user } = useAuthStore();
-  
-  // Suspense wrapper untuk lazy loading
-  const DashboardComponent = lazy(() => {
-    switch (user?.role) {
-      case USER_ROLES.ADMIN:
-        return import('./components/features/dashboard/AdminDashboard.jsx');
-      case USER_ROLES.ASSISTANT:
-        return import('./components/features/dashboard/AssistantDashboard.jsx');
-      case USER_ROLES.STUDENT:
-      default:
-        return import('./components/features/dashboard/StudentDashboard.jsx');
-    }
-  });
-
-  return (
-    <Suspense fallback={<LoadingSpinner />}>
-      <DashboardComponent />
-    </Suspense>
-  );
-};
-
-// =======================================================
-// ROUTER CONFIGURATION - UPDATED
+// ROUTER CONFIGURATION
 // =======================================================
 
 export const router = createBrowserRouter([
@@ -119,11 +85,15 @@ export const router = createBrowserRouter([
       },
       
       // =======================================================
-      // DASHBOARD - Role-based routing
+      // DASHBOARD - Smart role-based routing
       // =======================================================
       {
         path: 'dashboard',
-        element: <DashboardRoute />,
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <DashboardRoute />
+          </Suspense>
+        ),
       },
 
       // =======================================================
